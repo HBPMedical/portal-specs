@@ -1,0 +1,663 @@
+#
+# Author: Ludovic Claude
+#
+# External references:
+# * VIRTUA_APIRequirements_PocCHUV_1.3.pdf
+#
+
+swagger: '2.0'
+info:
+  title: MIP workflow API
+  description: Execute distributed calculations powered by native functions.
+  version: 0.1.0
+host: hbpfed1.chuv.ch:8087
+schemes:
+  - http
+basePath: /v0
+produces:
+  - application/json
+paths:
+  /requests:
+    post:
+      description: |
+        Execute a query. Virtua API for front end.
+      parameters:
+        - name: query
+          in: body
+          description: |
+            The query defining the function to execute, the variables, covariables, groupings and filters.
+          required: true
+          schema:
+            $ref: '#/definitions/Query'
+      responses:
+        '200':
+          description: The result dataset
+          schema:
+            $ref: '#/definitions/Dataset'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /function/summary_statistics:
+    post:
+      summary: Perform distributed summary statistics
+      description: |
+        Execute the summary statistics.
+      parameters:
+        - name: params
+          in: body
+          description: Parameters for the summary statistics function.
+          required: true
+          schema:
+            $ref: '#/definitions/SummaryStatistics'
+      tags:
+        - Jobs
+      responses:
+        '200':
+          description: The result of the summary statistics
+          schema:
+            $ref: '#/definitions/SummaryStatisticsResult'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /function/linear_regression:
+    post:
+      summary: Perform distributed linear regression
+      description: |
+        Execute the linear regression.
+      parameters:
+        - name: params
+          in: body
+          description: Parameters for the linear regression function.
+          required: true
+          schema:
+            $ref: '#/definitions/LinearRegression'
+      tags:
+        - Jobs
+      responses:
+        '200':
+          description: The result of the linear regression
+          schema:
+            $ref: '#/definitions/LinearRegressionResult'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /job:
+    post:
+      summary: Start a job
+      description: |
+        Launch a new job and distribute its processing over all nodes by default, or execute it only on the
+        nodes selected. 
+      parameters:
+        - name: job
+          in: body
+          description: Definition of the job to execute.
+          required: true
+          schema:
+            $ref: '#/definitions/Job'
+      tags:
+        - Jobs
+      responses:
+        '200':
+          description: The result of the distributed computation.
+          schema:
+            $ref: '#/definitions/JobResult'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  # Future
+  /capabilities/functions:
+    get:
+      summary: List the functions available
+      responses:
+        '200':
+          description: list of functions
+          schema:
+            type: array
+            items:
+              type: string
+  /capabilities/function:
+    get:
+      summary: Get details about one function
+      parameters:
+        - name: dockerImage
+          in: query
+          description: Full name of the Docker image containing the function. Include the version number to ensure reproducibility.
+          type: string
+      responses:
+        '200':
+          description: details about one function
+          schema:
+            type: object
+  /capabilities/nodes:
+    get:
+      summary: Get the list of nodes
+      responses:
+        '200':
+          description: list of nodes + databases on this node
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the node
+                databases:
+                  description: List of databases available on the node
+                  type: array
+                  items:
+                    type: string
+  /health:
+    get:
+      summary: Get the health of the workflow system
+      responses:
+        '200':
+          description: good health
+          schema:
+            type: string
+
+definitions:
+  Job:
+    type: object
+    required:
+      - jobId
+      - dockerImage
+    properties:
+      jobId:
+        type: string
+        description: Unique identifier representing a job.
+      dockerImage:
+        type: string
+        description: |
+          Full name of the Docker image containing the function to execute on a Node.
+          Include the version number to ensure reproducibility.
+      federationDockerImage:
+        type: string
+        description: |
+          Full name of the Docker image containing the function to execute on the Federation to build the final result from intermediate results.
+          Include the version number to ensure reproducibility.
+      jobName:
+        type: string
+        description: Name of the job as it will appear in Chronos. Must be unique. Default value is constructed from jobId and dockerImage.
+      inputDb:
+        type: string
+        description: |
+          Name of the input database, default to the LDSM database present at the local node
+      oututDb:
+        type: string
+        description: |
+          Name of the output database, default to analyticsdb
+      nodes:
+        type: array
+        description: List of the nodes selected for the distributed execution of the job
+        items:
+          type: string
+      parameters:
+        type: object
+        description: |
+          List of parameters required by the function to execute. See the documentation of the particular function you
+          want to call for details.
+
+  JobResult:
+    type: object
+    properties:
+      jobId:
+        type: string
+        description: Unique identifier representing a job.
+      node:
+        description: |
+          List of the nodes where the job was executed. TODO - make this an array
+        type: array
+        items:
+          type: string
+      timestamp:
+        type: string
+        format: dateTime
+        description: Timestamp indicating when the job completed its execution.
+      data:
+        type: object
+        description: Json representation of the response from the function.
+      error:
+        type: string
+        description: Error message if any.
+
+  SummaryStatistics:
+    type: object
+    required:
+      - jobId
+      - query
+    properties:
+      variables:
+        description: |
+          List of variables used by the request, only code values are sent
+        type: array
+        items:
+          $ref: '#/definitions/VariableId'
+      covariables:
+        description: |
+          List of covariables used by the request, only code values are sent.
+          These variables are returned in dataset object header.
+        type: array
+        items:
+          $ref: '#/definitions/VariableId'
+      grouping:
+        description: |
+          List of grouping variables used by the request, only code values are sent.
+        type: array
+        items:
+          $ref: '#/definitions/VariableId'
+      filters:
+        description: |
+          List of filters objects used by the request.
+        type: array
+        items:
+          $ref: '#/definitions/Filter'
+      nodes:
+        type: array
+        description: List of the nodes selected for the distributed execution of the job
+        items:
+          type: string
+      dockerImage:
+        type: string
+        description: |
+          Full name of the Docker image containing the function to execute on a Node.
+          Include the version number to ensure reproducibility.
+      federationDockerImage:
+        type: string
+        description: |
+          Full name of the Docker image containing the function to execute on the Federation to build the final result from intermediate results.
+          Include the version number to ensure reproducibility.
+
+  # TODO: Ugly flattened JSON to please Virtua
+  SummaryStatisticsResult:
+    type: object
+    properties:
+      code:
+        type: string
+        description: No idea what that was meant to be. I put there the job id.
+      date:
+        type: string
+        format: dateTime
+        description: A timestamp # TODO: rename to timestamp
+      header:
+        description: Metadata describing the contents of the data object
+        type: object
+        properties:
+          'GROUPING':
+            description: |
+              Metadata for the GROUPING column. Defined as ['label'] here.
+            type: array
+            items:
+              type: string
+          'COVARIABLE1':
+            description: |
+              Metadata for the COVARIABLE1 column. Defined as ['min','q1','median','q3','max','std'] here.
+            type: array
+            items:
+              type: string
+          'COVARIABLE2':
+            description: |
+              Metadata for the COVARIABLE2 column. Defined as ['min','q1','median','q3','max','std'] here.
+            type: array
+            items:
+              type: string
+      data:
+        description: Data object. Contains the results of the summary statistics applied to the dataset.
+        type: object
+        properties:
+          'GROUPING':
+            description: |
+              The list of groups.
+            type: array
+            items:
+              type: string
+          'COVARIABLE1':
+            description: |
+              A map containing as key a variable and as value an array of values representing the min, q1, median,
+              q3, max and std values respectively.
+            type: object
+          'COVARIABLE2':
+            description: |
+              A map containing as key a variable and as value an array of values representing the min, q1, median,
+              q3, max and std values respectively.
+            type: object
+
+  LinearRegression:
+    type: object
+    required:
+      - jobId
+      - query
+      - variable
+      - covariables
+    properties:
+      jobId:
+        type: string
+        description: Unique identifier representing a job.
+      query:
+        type: string
+        description: |
+          The SQL query selecting the input dataset.
+          TODO: replace this with a selection of variables
+      variable:
+        type: string
+        description: The name of the target variable for the linear regression
+      covariables:
+        description: List of covariables to use in the linear regression
+        type: array
+        items:
+          type: string
+      nodes:
+        type: array
+        description: List of the nodes selected for the distributed execution of the job
+        items:
+          type: string
+      dockerImage:
+        type: string
+        description: |
+          Full name of the Docker image containing the function to execute on a Node.
+          Include the version number to ensure reproducibility.
+      federationDockerImage:
+        type: string
+        description: |
+          Full name of the Docker image containing the function to execute on the Federation to build the final result from intermediate results.
+          Include the version number to ensure reproducibility.
+
+  # TODO: Ugly flattened JSON to please Virtua
+  LinearRegressionResult:
+    type: object
+    properties:
+      code:
+        type: string
+        description: No idea what that was meant to be. I put there the job id.
+      date:
+        type: string
+        format: dateTime
+        description: A timestamp # TODO: rename to timestamp
+      header:
+        description: Metadata describing the contents of the data object
+        type: object
+        properties:
+          'GROUPING':
+            description: |
+              Metadata for the GROUPING column. Defined as ['label'] here.
+            type: array
+            items:
+              type: string
+          'COVARIABLE1':
+            description: |
+              Metadata for the COVARIABLE1 column. Defined as ['min','q1','median','q3','max','std'] here.
+            type: array
+            items:
+              type: string
+          'COVARIABLE2':
+            description: |
+              Metadata for the COVARIABLE2 column. Defined as ['min','q1','median','q3','max','std'] here.
+            type: array
+            items:
+              type: string
+      data:
+        description: Data object. Contains the results of the linear regression applied to the dataset.
+        type: object
+        properties:
+          'GROUPING':
+            description: |
+              The list of groups.
+            type: array
+            items:
+              type: string
+          'COVARIABLE1':
+            description: |
+              A map containing as key a variable and as value an array of values representing the min, q1, median,
+              q3, max and std values respectively.
+            type: object
+          'COVARIABLE2':
+            description: |
+              A map containing as key a variable and as value an array of values representing the min, q1, median,
+              q3, max and std values respectively.
+            type: object
+
+  Error:
+    type: object
+    properties:
+      errorCode:
+        type: string
+        description: Unique error code
+      errorType:
+        type: string
+        description: Error type
+      time:
+        type: string
+        format: dateTime
+        description: Time of the error # TODO: rename to timestamp
+      message:
+        type: string
+        description: Error message
+      detail:
+        type: string
+        description: Details about the error
+      request:
+        type: string
+        description: URL called at the outbreak of the error
+  AsynchronousToken:
+    type: object
+    properties:
+      token:
+        type: string
+        description: Unique token
+      progress:
+        type: integer
+        description: A value from 0 to 100 indicating current progression
+      asyncUrl:
+        type: string
+        description: URL to get asynchronous operation progression
+      resultUrl:
+        type: string
+        description: URL to get result after asynchronous operation, returned if asynchronous process is finished.
+  Group:
+    type: object
+    description: |
+      A group object represents a variable scope. Each variable is associated to a group.
+      Each group can be contained in other group. The group chaining can be interpreted like a hierarchy.
+    properties:
+      code:
+        type: string
+        description: Unique group code
+      label:
+        type: string
+        description: Group label
+      groups:
+        description: Sub groups - TODO: rename to subgroups
+        type: array
+        items:
+          $ref: '#/definitions/Subgroup'
+  Subgroup:
+    type: object
+    properties:
+      code:
+        type: string
+        description: Unique group code
+      label:
+        type: string
+        description: Group label
+  VariableId:
+    type: object
+    description: Identifier for a variable object.
+    properties:
+      code:
+        type: string
+        description: |
+          Unique variable code, used to request
+  Variable:
+    type: object
+    description: A variable object represents a business variable. All variable information should be stored in this object.
+    properties:
+      code:
+        type: string
+        description: |
+          Unique variable code, used to request
+      label:
+        type: string
+        description: |
+          Variable label, used to display
+      group:
+        description: |
+          Variable group (only the variable path)
+        '$ref': '#/definitions/Group'
+      type:
+        type: string
+        description: |
+          I: Integer, T: Text, N: Decimal, D: Date, B: Boolean.
+        enum:
+          - I # Integer
+          - T # Text
+          - N # Decimal
+          - D # Date
+          - B # Boolean
+      length:
+        type: integer
+        description: |
+          For text, number of characters of value
+      minValue:
+        type: number
+        description: |
+          Minimum allowed value (for integer or numeric)
+      maxValue:
+        type: number
+        description: |
+          Maximum allowed value (for integer or numeric)
+      units:
+        type: string
+        description: Variable unit
+      isVariable:
+        type: boolean
+        description: Can the variable can be used as a variable
+      isGrouping:
+        type: boolean
+        description: Can the variable can be used as a group
+      isCovariable:
+        type: boolean
+        description: Can the variable can be used as a covariable
+      isFilter:
+        type: boolean
+        description: Can the variable can be used as a filter
+      values:
+        description: |
+          List of variable values (if is an enumeration variable).
+        type: array
+        items:
+          $ref: '#/definitions/Value'
+  Value:
+    type: object
+    description: A value object is a business variable value. All value information should be stored in this object.
+    properties:
+      code:
+        type: string
+        description: |
+          Unique code of value (for variable), used to request
+      label:
+        type: string
+        description: |
+          Label of value, used to display
+  Dataset:
+    type: object
+    description: |
+      A dataset object contains all the request data.
+      Each data row must contain the same number of value. An empty value must be set to null.
+    properties:
+      code:
+        type: string
+        description: Unique code identifying the dataset
+      date:
+        type: string
+        format: dateTime
+        description: A timestamp # TODO: rename to timestamp
+      header:
+        description: Metadata describing the contents of the data object
+        type: array
+        items:
+         type: string
+      data:
+        description: Data object. Contains the results of the linear regression applied to the dataset.
+        type: array
+        items:
+          $ref: '#/definitions/Datarow'
+  Datarow:
+    type: object
+    description: A row of data values
+    properties:
+      label:
+        type: string
+        description: Name of the row
+      values:
+        description: The list of values. The type should really be 'any' but there is a limitation in the Swagger spec.
+        type: array
+        items:
+          type: string
+  Filter:
+    type: object
+    description: A filter in a query
+    properties:
+      variable:
+        description: |
+          Variable used to filter, only code value is sent
+        '$ref': '#/definitions/VariableId'
+      operator:
+        description: |
+          Filter operator : eq, lt, gt, gte, lte, neq, in, notin, between.
+        type: string
+        enum:
+          - eq
+          - lt
+          - gt
+          - gte
+          - lte
+          - neq
+          - in
+          - notin
+          - between
+      values:
+        description: |
+          List of values used to filter.
+          With operators “eq”, “lt”, “gt”, “gte”, “lte”, ”neq”, the filter mode “OR” is used.
+          With operator “between”, only two values are sent, they represents the range limits.
+        type: array
+        items:
+          type: string
+  Query:
+    type: object
+    description: |
+      A query object represents a request to the CHUV API.
+      This object contains all information required by the API to compute a result (dataset) and return it.
+    properties:
+      variables:
+        description: |
+          List of variables used by the request, only code values are sent
+        type: array
+        items:
+          $ref: '#/definitions/VariableId'
+      covariables:
+        description: |
+          List of covariables used by the request, only code values are sent.
+          These variables are returned in dataset object header.
+        type: array
+        items:
+          $ref: '#/definitions/VariableId'
+      grouping:
+        description: |
+          List of grouping variables used by the request, only code values are sent.
+        type: array
+        items:
+          $ref: '#/definitions/VariableId'
+      filters:
+        description: |
+          List of filters objects used by the request.
+        type: array
+        items:
+          $ref: '#/definitions/Filter'
+      request:
+        description: Plot type
+        type: string

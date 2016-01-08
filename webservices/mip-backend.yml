@@ -69,6 +69,7 @@ paths:
       responses:
         '200':
           description: 'Article created'
+
   /articles/{slug}:
     get:
       summary: 'Get an article'
@@ -124,6 +125,7 @@ paths:
       responses:
         '200':
           description: 'Article deleted'
+
   /models:
     get:
       summary: 'Get models'
@@ -175,6 +177,7 @@ paths:
       responses:
         '200':
           description: 'Model created'
+
   /models/{slug}:
     get:
       summary: 'Get a model'
@@ -230,6 +233,7 @@ paths:
       responses:
         '200':
           description: 'Model deleted'
+
   /datasets/{code}:
     get:
       summary: 'Get a dataset'
@@ -248,6 +252,7 @@ paths:
           schema:
             type: object
             $ref: '#/definitions/Dataset'
+
   /groups:
     get:
       summary: 'Get the root group (containing all subgroups)'
@@ -260,6 +265,9 @@ paths:
           schema:
             type: object
             $ref: '#/definitions/Group'
+
+  # TODO: /group/{code} ?
+
   /variables:
     get:
       summary: 'Get variables'
@@ -297,7 +305,6 @@ paths:
         required: false
         type: string
         description: 'Boolean value formatted like : ("0") or ("1") or ("false") or ("true")'
-      
       responses:
         '200':
           description: 'Success'
@@ -306,6 +313,7 @@ paths:
             items:
               type: object
               $ref: '#/definitions/Variable'
+
   /variables/{code}:
     get:
       summary: 'Get a variable'
@@ -315,7 +323,7 @@ paths:
       parameters:
         - name: code
           in: path
-          description: 'code ( multiple codes are allowed, separeted by "," )'
+          description: 'code of the variable (multiple codes are allowed, separated by ",")'
           required: true
           type: string
       responses:
@@ -326,6 +334,7 @@ paths:
             $ref: '#/definitions/Variable'
         '404':
           description: 'Not found'
+
   /variables/{code}/values:
     get:
       summary: 'Get values from a variable'
@@ -336,7 +345,7 @@ paths:
       parameters:
         - name: code
           in: path
-          description: 'code'
+          description: 'code of the variable'
           required: true
           type: string
         - name: q
@@ -355,6 +364,7 @@ paths:
         '404':
           description: 'Not found'
 definitions:
+
   Article:
     type: object
     properties:
@@ -400,6 +410,7 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Tag"
+
   User:
     type: object
     properties:
@@ -465,6 +476,7 @@ definitions:
         items:
           type: string
         description: 'Roles'
+
   Tag:
     type: object
     properties:
@@ -475,6 +487,7 @@ definitions:
       name:
         type: string
         description: 'Name'
+
   Chart:
     type: object
     properties:
@@ -493,6 +506,7 @@ definitions:
         items:
           $ref: "#/definitions/ChartConfigSet"
         description: 'Chart configuration'
+
   ChartConfigSet:
     type: object
     properties:
@@ -509,6 +523,7 @@ definitions:
       color:
         type: string
         description: 'Color'
+
   Dataset:
     type: object
     properties:
@@ -528,6 +543,7 @@ definitions:
         items:
           type: string
         description: 'Header'
+
   Filter:
     type: object
     properties:
@@ -542,6 +558,7 @@ definitions:
       operator:
         type: string
         description: 'Operator'
+
   Group:
     type: object
     properties:
@@ -561,6 +578,7 @@ definitions:
           type: object
           $ref: "#/definitions/Group"
         description: 'Groups'
+
   Model:
     type: object
     properties:
@@ -608,32 +626,43 @@ definitions:
         type: object
         $ref: "#/definitions/User"
         description: 'Updater'
+
   Query:
     type: object
+    description: |
+      A query object represents a request to the CHUV API.
+      This object contains all information required by the API to compute a result (dataset) and return it.
     properties:
+      # TODO: is the id needed here?
       id:
         type: integer
         format: int64
         description: 'Unique identifier'
       variables:
+        description: 'List of variables used by the request, only code values are sent'
         type: array
         items:
           type: object
           $ref: "#/definitions/Variable"
         description: 'Variables'
       covariables:
+        description: |
+          List of covariables used by the request, only code values are sent.
+          These variables are returned in dataset object header.
         type: array
         items:
           type: object
           $ref: "#/definitions/Variable"
         description: 'Covariables'
       grouping:
+        description: 'List of grouping variables used by the request, only code values are sent'
         type: array
         items:
           type: object
           $ref: "#/definitions/Variable"
         description: 'Grouping'
       filters:
+        description: 'List of filters objects used by the request'
         type: array
         items:
           type: object
@@ -642,9 +671,13 @@ definitions:
       request:
         type: string
         description: 'Request'
+
+  # TODO: what is this for? I would rename that to VariableId, as it seems to carry only the identify of a variable, without its full description
   Value:
     type: object
+    description: XXX.
     properties:
+      # TODO: (LC) is the id necessary? The code seems enough as an identifier
       id:
         type: integer
         format: int64
@@ -655,8 +688,10 @@ definitions:
       label:
         type: string
         description: 'Label'
+
   Variable:
     type: object
+    description: Description of a variable. A variable points to a vector of values.
     properties:
       id:
         type: integer
@@ -665,7 +700,7 @@ definitions:
       group:
         type: object
         $ref: "#/definitions/Group"
-        description: 'Group'
+        description: 'Variable group (only the variable path)'
       code:
         type: string
         description: 'Code'
@@ -680,18 +715,20 @@ definitions:
         description: 'Length'
       isVariable:
         type: boolean
-        description: 'Is it a variable ?'
+        description: 'Can the variable can be used as a variable?'
       isGrouping:
         type: boolean
-        description: 'Is it a grouping variable ?'
+        description: 'Can the variable can be used as a group?'
       isVariable:
         type: boolean
-        description: 'Is it a covariable ?'
+        description: 'Can the variable can be used as a covariable?'
       isFilter:
         type: boolean
-        description: 'Is it a filter ?'
+        description: 'Can the variable can be used as a filter?'
       values:
         type: array
         items:
           type: object
           $ref: "#/definitions/Value"
+        description: 'List of variable values (if is an enumeration variable)'
+

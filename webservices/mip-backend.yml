@@ -709,7 +709,13 @@ definitions:
         description: 'Label'
       type:
         type: string
-        description: 'Type'
+        description: 'Type of the variable'
+        enum:
+          - integer
+          - text
+          - number
+          - date
+          - boolean
       length:
         type: integer
         description: 'Length'

@@ -546,18 +546,39 @@ definitions:
 
   Filter:
     type: object
+    description: A filter in a query
     properties:
       id:
         type: integer
         format: int64
         description: 'Unique identifier'
       variable:
+        description: 'Variable used to filter, only code value is sent'
         type: object
         $ref: "#/definitions/Variable"
         description: 'Variable'
       operator:
+        description: 'Filter operator : eq, lt, gt, gte, lte, neq, in, notin, between'
         type: string
         description: 'Operator'
+        enum:
+          - eq
+          - lt
+          - gt
+          - gte
+          - lte
+          - neq
+          - in
+          - notin
+          - between
+      values:
+        description: |
+          List of values used to filter.
+          With operators “eq”, “lt”, “gt”, “gte”, “lte”, ”neq”, the filter mode “OR” is used.
+          With operator “between”, only two values are sent, they represents the range limits.
+        type: array
+        items:
+          type: string
 
   Group:
     type: object

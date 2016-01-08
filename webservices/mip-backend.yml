@@ -363,6 +363,32 @@ paths:
               $ref: '#/definitions/Value'
         '404':
           description: 'Not found'
+
+  /stats/{code}:
+    get:
+      summary: 'Get the statistics for a group or a variable'
+      operationId: 'Get the statistics for a group or a variable'
+      tags:
+        - Variables
+        - Groups
+        - Statistics
+      parameters:
+        - name: code
+          in: path
+          description: 'code of the group or variable'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'Found'
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/Statistics'
+        '404':
+          description: 'Not found'
+
 definitions:
 
   Article:
@@ -790,3 +816,52 @@ definitions:
           $ref: "#/definitions/Value"
         description: 'List of variable values (if is an enumeration variable)'
 
+  Statistics:
+    type: object
+    properties:
+      code:
+        type: string
+        description: 'Code of the variable or group being described'
+      stats:
+        type: array
+        items:
+          type: object
+          $ref: "#/definitions/StatisticsItem"
+
+  SummaryStatistics:
+    description: 'Statistics describing a list of values'
+    type: object
+    properties:
+      size:
+        description: 'size (count) of distinct values for categorial variables'
+        type: integer
+      count:
+        description: 'total (non-distinct) count of values'
+        type: integer
+      max:
+        description: 'maximum value (numbers only)'
+        type: number
+      min:
+        description: 'minimum value (numbers only)'
+        type: number
+      q1:
+        description: 'first quartile (numbers only)'
+        type: number
+      q3:
+        description: 'third quartile (numbers only)'
+        type: number
+      median:
+        description: 'median value (numbers only)'
+        type: number
+      mean:
+        description: 'population average (numbers only)'
+        type: number
+      sum:
+        description: 'population sum (numbers only)'
+        type: number
+      stddev:
+        description: 'population standard deviation (numbers only)'
+        type: number
+      variance:
+        description: 'population variance (numbers only)'
+        type: number

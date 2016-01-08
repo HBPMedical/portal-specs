@@ -412,6 +412,7 @@ definitions:
           $ref: "#/definitions/Tag"
 
   User:
+    description: 'A user of the MIP portal'
     type: object
     properties:
       id:
@@ -439,11 +440,15 @@ definitions:
       phone:
         type: string
         description: 'Phone number'
+      # TODO: shouldn't that be a date?
       birthday:
         type: string
         description: 'Birthday date'
       gender:
         type: string
+        enum:
+          - male
+          - female
         description: 'Gender'
       city:
         type: string
@@ -470,6 +475,12 @@ definitions:
         type: array
         items:
           type: string
+          enum:
+            - en
+            - fr
+            - de
+            - it
+            - es
         description: 'Languages'
       roles:
         type: array

@@ -819,15 +819,99 @@ definitions:
 
   Dataset:
     type: object
+    properties:
+      data:
+        description: 'A block of data'
+        type: array
+        items:
+          type: object
+          properties:
+            - name:
+                type: string
+                description: 'Name of the data element'
+            - justification:
+                description: |
+                  Justification for the existance of this data element.
+                  A data element can be present because it is either:
+                    * the single response to a query
+                    * the consequence to a grouping clause in the query
+                    * the consequence to the selection of a covariable in the query
+                type: string
+                enum:
+                  - query
+                  - grouping
+                  - covariable
+            - data:
+                description: 'The data'
+                type: object
+                $ref: '#/definitions/Data'
+
+  Data:
+    type: object
     discriminator: 'dataType'
     properties:
       shape:
         type: string
         enum:
-          - point
-          - vector
-          - table
-          - matrix
+          - Point
+          - Vector
+          - Table
+          - Matrix
+
+  # TODO: merge Value into this type
+  Point:
+    description: 'A data point representing a single value'
+    allOf:
+      - $ref: '#/definitions/Data'
+      - type: object
+        properties:
+          code:
+            type: string
+            description: 'Code'
+          label:
+            type: string
+            description: 'Label'
+
+  Vector:
+    description: 'A list of values, each value can be associated with a name'
+    allOf:
+      - $ref: '#/definitions/Data'
+      - type: object
+        properties:
+          header:
+            description: 'List of names associated with each values'
+            type: array
+            items:
+              type: string
+          values:
+            description: 'The list of values of the vector'
+            type: array
+            items:
+              type: string | numeric
+
+  Table:
+    description: 'A table of values'
+    allOf:
+      - $ref: '#/definitions/Data'
+      - type: object
+        properties:
+          rowHeader:
+            description: 'Names for the rows'
+            type: array
+            items:
+              type: string
+          columnHeader:
+            description: 'Names for the columns'
+            type: array
+            items:
+              type: string
+          values:
+            description: 'The list of values of the table represented as an array of dimension 2'
+            type: array
+            items:
+              type: array
+              items:
+                type: string | numeric
 
   Statistics:
     type: object
@@ -864,6 +948,11 @@ definitions:
             type: integer
             format: int32
             minimum: 0
+          na:
+            description: 'number of empty (Not Available) values'
+            type: integer
+            format: int32
+            minimum: 0
           max:
             description: 'maximum value (numbers only)'
             type: number
@@ -891,3 +980,16 @@ definitions:
           variance:
             description: 'population variance (numbers only)'
             type: number
+
+  DatasetStatistics:
+    description: 'Generic Statistics data'
+    allOf:
+      - $ref: '#/definitions/Statistics'
+      - type: object
+        required:
+          - dataset
+        properties:
+          dataset:
+            description: 'Dataset containing the data for the statistics'
+            type: object
+            $ref: '#/definitions/Dataset'

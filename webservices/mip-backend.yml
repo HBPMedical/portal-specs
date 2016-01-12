@@ -875,6 +875,7 @@ definitions:
             type: string
             description: 'Label'
 
+  # TODO: consider json-stat.org as a more powerful representation of statistical data
   Vector:
     description: 'A list of values, each value can be associated with a name'
     allOf:
@@ -886,12 +887,21 @@ definitions:
             type: array
             items:
               type: string
-          values:
+          categories:
+            description: |
+              Optional grouping of headers by categories.
+              The categories array should match in length the header array, and duplicate
+              elements in the category array indicate a grouping of corresponding headers.
+            type: array
+            items:
+              type: string
+          value:
             description: 'The list of values of the vector, can string or numeric values'
             type: array
             items:
               type: object # TODO: string | numeric
 
+  # TODO: should disapear if we use json-stat
   Table:
     description: 'A table of values'
     allOf:
@@ -908,7 +918,7 @@ definitions:
             type: array
             items:
               type: string
-          values:
+          value:
             description: 'The list of values of the table represented as an array of dimension 2, can be string or numeric values'
             type: array
             items:
@@ -1017,6 +1027,7 @@ definitions:
             type: string
             description: |
               Description of the statical dataset, for example:
+                * Breakdown by value
                 * Count by provenance
                 * Repartition by Age
                 * Count by Gender
@@ -1024,3 +1035,24 @@ definitions:
             description: 'Dataset containing the data for the statistics'
             type: object
             $ref: '#/definitions/Dataset'
+    example:
+      # APOE is a categorical variable, so we can display a breakdown by value
+      - dataType: DatasetStatistics
+        code: APOE
+        label: 'Breakdown by value'
+        dataset:
+          name: 'Count APOE values'
+          data:
+            shape: vector
+            header: ['0', '1', '2']
+            value: [930, 541, 124]
+      - dataType: DatasetStatistics
+        code: APOE
+        label: 'Count by provenance'
+        dataset:
+          name: 'Count APOE values'
+          data:
+            shape: vector
+            header: ['ADNI1', 'ADNI2', 'ADNI1', 'ADNI2', 'ADNI1', 'ADNI2', 'ADNI2']
+            categories: ['0', '0',     '1',     '1',     '2',     '2',     'NA']
+            value:  [694,      287,     408,     112,     101,     14,      3]

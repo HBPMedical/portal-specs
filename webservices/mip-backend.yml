@@ -562,25 +562,26 @@ definitions:
         type: string
         description: 'Color'
 
-  Dataset:
-    type: object
-    properties:
-      id:
-        type: integer
-        format: int64
-        description: 'Unique identifier'
-      code:
-        type: string
-        description: 'Code'
-      date:
-        type: string
-        format: dateTime
-        description: 'Date'
-      header:
-        type: array
-        items:
-          type: string
-        description: 'Header'
+# TODO: merge with the other definition of dataset
+#  Dataset:
+#    type: object
+#    properties:
+#      id:
+#        type: integer
+#        format: int64
+#        description: 'Unique identifier'
+#      code:
+#        type: string
+#        description: 'Code'
+#      date:
+#        type: string
+#        format: dateTime
+#        description: 'Date'
+#      header:
+#        type: array
+#        items:
+#          type: string
+#        description: 'Header'
 
   Model:
     type: object
@@ -826,29 +827,29 @@ definitions:
         items:
           type: object
           properties:
-            - name:
-                type: string
-                description: 'Name of the data element'
-            - justification:
-                description: |
-                  Justification for the existance of this data element.
-                  A data element can be present because it is either:
-                    * the single response to a query
-                    * the consequence to a grouping clause in the query
-                    * the consequence to the selection of a covariable in the query
-                type: string
-                enum:
-                  - query
-                  - grouping
-                  - covariable
-            - data:
-                description: 'The data'
-                type: object
-                $ref: '#/definitions/Data'
+            name:
+              type: string
+              description: 'Name of the data element'
+            justification:
+              description: |
+                Justification for the existance of this data element.
+                A data element can be present because it is either:
+                  * the single response to a query
+                  * the consequence to a grouping clause in the query
+                  * the consequence to the selection of a covariable in the query
+              type: string
+              enum:
+                - query
+                - grouping
+                - covariable
+            data:
+              description: 'The data'
+              type: object
+              $ref: '#/definitions/Data'
 
   Data:
     type: object
-    discriminator: 'dataType'
+    discriminator: 'shape'
     properties:
       shape:
         type: string
@@ -857,6 +858,8 @@ definitions:
           - Vector
           - Table
           - Matrix
+    required:
+      - shape
 
   # TODO: merge Value into this type
   Point:
@@ -884,10 +887,10 @@ definitions:
             items:
               type: string
           values:
-            description: 'The list of values of the vector'
+            description: 'The list of values of the vector, can string or numeric values'
             type: array
             items:
-              type: string | numeric
+              type: object # TODO: string | numeric
 
   Table:
     description: 'A table of values'
@@ -906,20 +909,17 @@ definitions:
             items:
               type: string
           values:
-            description: 'The list of values of the table represented as an array of dimension 2'
+            description: 'The list of values of the table represented as an array of dimension 2, can be string or numeric values'
             type: array
             items:
               type: array
               items:
-                type: string | numeric
+                type: object # TODO: string | numeric
 
   Statistics:
     type: object
     discriminator: 'dataType'
     properties:
-      code:
-        type: string
-        description: 'Code of the variable or group being described'
       dataType:
         type: string
         enum:
@@ -927,7 +927,6 @@ definitions:
           - DatasetStatistics
         description: 'Type of the data'
     required:
-      - code
       - dataType
 
   SummaryStatistics:
@@ -936,8 +935,12 @@ definitions:
       - $ref: '#/definitions/Statistics'
       - type: object
         required:
+          - code
           - count
         properties:
+          code:
+            type: string
+            description: 'Code of the variable or group being described'
           size:
             description: 'size (count) of distinct values for categorial variables'
             type: integer

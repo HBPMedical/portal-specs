@@ -987,7 +987,7 @@ definitions:
           sum:
             description: 'population sum (numbers only)'
             type: number
-          stddev:
+          std:
             description: 'population standard deviation (numbers only)'
             type: number
           variance:

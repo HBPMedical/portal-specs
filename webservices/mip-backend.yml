@@ -983,6 +983,24 @@ definitions:
           variance:
             description: 'population variance (numbers only)'
             type: number
+    example:
+      - dataType: SummaryStatistics
+        code: SITE
+        count: 1649
+      - dataType: SummaryStatistics
+        code: EXAMDATE
+        count: 1649
+        min: "01.09.2005"
+        max: "01.11.2013"
+        average: "02.05.2009"
+        std: 864.845786
+      - dataType: SummaryStatistics
+        code: AGE
+        count: 1649
+        min: 55.9
+        max: 90.9
+        average: 75.404245
+        std: 6.214843368
 
   DatasetStatistics:
     description: 'Generic Statistics data'

@@ -1010,6 +1010,16 @@ definitions:
         required:
           - dataset
         properties:
+          code:
+            type: string
+            description: 'Code of the variable or group being described'
+          label:
+            type: string
+            description: |
+              Description of the statical dataset, for example:
+                * Count by provenance
+                * Repartition by Age
+                * Count by Gender
           dataset:
             description: 'Dataset containing the data for the statistics'
             type: object

@@ -1,4 +1,4 @@
-{
+[{
   "count": 1649,
   "min": 0,
   "std": 18.40857924,
@@ -6,4 +6,4 @@
   "max": 96,
   "average": 16.73741662,
   "dataType": "SummaryStatistics"
-}
+}]

@@ -1,0 +1,10 @@
+web:
+  build: .
+  ports:
+    - "8085:80"
+  volumes:
+    - .:/var/www/html/
+  links:
+    - backend
+backend:
+  image: mip-mock-backend

@@ -5,3 +5,9 @@ docker run -i -t -v "${PWD}/webservices:/spec" \
     -e "LANGUAGE=dynamic-html" \
     -e "SWAGGER_FILE=mip-backend.yml" \
     sandcastle/swagger-codegen-docker
+
+docker run -i -t -v "${PWD}/webservices:/spec" \
+    -v "${PWD}/target/html:/gen" \
+    -e "LANGUAGE=html" \
+    -e "SWAGGER_FILE=mip-backend.yml" \
+    sandcastle/swagger-codegen-docker

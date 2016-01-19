@@ -33,7 +33,10 @@ paths:
         in: query
         required: false
         type: string
-        format: '{"draft","published","closed"}'
+        enum:
+          - draft
+          - published
+          - closed
         description: 'Only ask results matching status'
       - name: team
         in: query
@@ -400,7 +403,10 @@ definitions:
         description: 'Unique identifier'
       status:
         type: string
-        format: '{"draft","published","closed"}'
+        enum:
+          - draft
+          - published
+          - closed
         description: 'Status'
       title:
         type: string
@@ -416,15 +422,15 @@ definitions:
         description: 'Content'
       publishedAt:
         type: string
-        format: dateTime
+        format: date-time
         description: 'Publication date'
       createdAt:
         type: string
-        format: dateTime
+        format: date-time
         description: 'Creation date'
       updatedAt:
         type: string
-        format: dateTime
+        format: date-time
         description: 'Update date'
       createdBy:
         $ref: "#/definitions/User"
@@ -616,11 +622,11 @@ definitions:
         description: 'Chart'
       createdAt:
         type: string
-        format: dateTime
+        format: date-time
         description: 'Creation date'
       updatedAt:
         type: string
-        format: dateTime
+        format: date-time
         description: 'Update date'
       createdBy:
         type: object

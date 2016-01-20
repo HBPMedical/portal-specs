@@ -1,0 +1,894 @@
+---
+  swagger: "2.0"
+  info: 
+    description: "Serve the MIP Frontend"
+    version: "1.0"
+    title: "Medical Informatics Platform API"
+    contact: 
+      name: "mirco.nasuti@chuv.ch"
+    license: {}
+  host: "155.105.202.24:8080"
+  basePath: "/"
+  tags: 
+    - 
+      name: "queriesrequests"
+      description: "the groups API"
+    - 
+      name: "users"
+      description: "the users API"
+    - 
+      name: "datasets"
+      description: "the datasets API"
+    - 
+      name: "variables"
+      description: "the variables API"
+    - 
+      name: "models"
+      description: "the models API"
+    - 
+      name: "articles"
+      description: "the articles API"
+    - 
+      name: "groups"
+      description: "the groups API"
+  paths: 
+    /articles: 
+      get: 
+        tags: 
+          - "articles"
+        summary: "Get articles"
+        operationId: "getArticlesUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "own"
+            in: "query"
+            description: "Only ask own articles"
+            required: false
+            type: "boolean"
+          - 
+            name: "status"
+            in: "query"
+            description: "Only ask results matching status"
+            required: false
+            type: "string"
+          - 
+            name: "team"
+            in: "query"
+            description: "Only ask articles from own team"
+            required: false
+            type: "boolean"
+          - 
+            name: "valid"
+            in: "query"
+            description: "Only ask valid articles"
+            required: false
+            type: "boolean"
+        responses: 
+          200: 
+            description: "Success"
+            schema: 
+              type: "array"
+              items: 
+                $ref: "#/definitions/Article"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+      post: 
+        tags: 
+          - "articles"
+        summary: "Create an article"
+        operationId: "addAnArticleUsingPOST"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            in: "body"
+            name: "article"
+            description: "Article to create"
+            required: true
+            schema: 
+              $ref: "#/definitions/Article"
+          - 
+            in: "body"
+            name: "principal"
+            description: "principal"
+            required: false
+            schema: 
+              $ref: "#/definitions/Principal"
+        responses: 
+          200: 
+            description: "Article created"
+          201: 
+            description: "Created"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+    /articles/{slug}: 
+      get: 
+        tags: 
+          - "articles"
+        summary: "Get an article"
+        operationId: "getAnArticleUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "slug"
+            in: "path"
+            description: "slug"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Found"
+            schema: 
+              $ref: "#/definitions/Article"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not found"
+      put: 
+        tags: 
+          - "articles"
+        summary: "Update an article"
+        operationId: "updateAnArticleUsingPUT"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "slug"
+            in: "path"
+            description: "slug"
+            required: true
+            type: "string"
+          - 
+            in: "body"
+            name: "article"
+            description: "Article to update"
+            required: true
+            schema: 
+              $ref: "#/definitions/Article"
+        responses: 
+          200: 
+            description: "Article updated"
+          201: 
+            description: "Created"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+      delete: 
+        tags: 
+          - "articles"
+        summary: "Delete an article"
+        operationId: "deleteAnArticleUsingDELETE"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "slug"
+            in: "path"
+            description: "slug"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Article deleted"
+          204: 
+            description: "No Content"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+    /datasets/{code}: 
+      get: 
+        tags: 
+          - "datasets"
+        summary: "Get a dataset"
+        operationId: "getADatasetUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "code"
+            in: "path"
+            description: "code"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Success"
+            schema: 
+              $ref: "#/definitions/Dataset"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+    /groups: 
+      get: 
+        tags: 
+          - "groups"
+        summary: "Get the root group (containing all subgroups)"
+        operationId: "getTheRootGroupUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        responses: 
+          200: 
+            description: "Success"
+            schema: 
+              $ref: "#/definitions/Group"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+    /models: 
+      get: 
+        tags: 
+          - "models"
+        summary: "Get models"
+        operationId: "getModelsUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "limit"
+            in: "query"
+            description: "Max number of results"
+            required: false
+            type: "integer"
+            format: "int32"
+          - 
+            name: "own"
+            in: "query"
+            description: "Only ask own models"
+            required: false
+            type: "boolean"
+          - 
+            name: "team"
+            in: "query"
+            description: "Only ask models from own team"
+            required: false
+            type: "boolean"
+          - 
+            name: "valid"
+            in: "query"
+            description: "Only ask valid models"
+            required: false
+            type: "boolean"
+          - 
+            in: "body"
+            name: "principal"
+            description: "principal"
+            required: false
+            schema: 
+              $ref: "#/definitions/Principal"
+        responses: 
+          200: 
+            description: "Success"
+            schema: 
+              type: "array"
+              items: 
+                $ref: "#/definitions/Model"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+      post: 
+        tags: 
+          - "models"
+        summary: "Create a model"
+        operationId: "addAModelUsingPOST"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            in: "body"
+            name: "model"
+            description: "Model to create"
+            required: true
+            schema: 
+              $ref: "#/definitions/Model"
+          - 
+            in: "body"
+            name: "principal"
+            description: "principal"
+            required: false
+            schema: 
+              $ref: "#/definitions/Principal"
+        responses: 
+          200: 
+            description: "Model created"
+          201: 
+            description: "Created"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+    /models/{slug}: 
+      get: 
+        tags: 
+          - "models"
+        summary: "Get a model"
+        operationId: "getAModelUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "slug"
+            in: "path"
+            description: "slug"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Found"
+            schema: 
+              $ref: "#/definitions/Model"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not found"
+      put: 
+        tags: 
+          - "models"
+        summary: "Update a model"
+        operationId: "updateAModelUsingPUT"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "slug"
+            in: "path"
+            description: "slug"
+            required: true
+            type: "string"
+          - 
+            in: "body"
+            name: "model"
+            description: "Model to update"
+            required: true
+            schema: 
+              $ref: "#/definitions/Model"
+        responses: 
+          200: 
+            description: "Model updated"
+          201: 
+            description: "Created"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+      delete: 
+        tags: 
+          - "models"
+        summary: "Delete a model"
+        operationId: "deleteAModelUsingDELETE"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "slug"
+            in: "path"
+            description: "slug"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Model deleted"
+          204: 
+            description: "No Content"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+    /queries/requests: 
+      post: 
+        tags: 
+          - "queriesrequests"
+        summary: "postRequests"
+        operationId: "postRequestsUsingPOST"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        responses: 
+          200: 
+            description: "Success"
+            schema: 
+              $ref: "#/definitions/Group"
+          201: 
+            description: "Created"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+    /users/{username}: 
+      get: 
+        tags: 
+          - "users"
+        summary: "Get a user"
+        operationId: "getAUserUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "username"
+            in: "path"
+            description: "username"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Found"
+            schema: 
+              $ref: "#/definitions/User"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not found"
+    /variables: 
+      get: 
+        tags: 
+          - "variables"
+        summary: "Get variables"
+        operationId: "getVariablesUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "group"
+            in: "query"
+            description: "List of groups formatted like : (\"val1\", \"val2\", ...)"
+            required: false
+            type: "string"
+          - 
+            name: "subgroup"
+            in: "query"
+            description: "List of subgroups formatted like : (\"val1\", \"val2\", ...)"
+            required: false
+            type: "string"
+          - 
+            name: "isVariable"
+            in: "query"
+            description: "Boolean value formatted like : (\"0\") or (\"1\") or (\"false\") or (\"true\")"
+            required: false
+            type: "string"
+          - 
+            name: "isGrouping"
+            in: "query"
+            description: "Boolean value formatted like : (\"0\") or (\"1\") or (\"false\") or (\"true\")"
+            required: false
+            type: "string"
+          - 
+            name: "isCovariable"
+            in: "query"
+            description: "Boolean value formatted like : (\"0\") or (\"1\") or (\"false\") or (\"true\")"
+            required: false
+            type: "string"
+          - 
+            name: "isFilter"
+            in: "query"
+            description: "Boolean value formatted like : (\"0\") or (\"1\") or (\"false\") or (\"true\")"
+            required: false
+            type: "string"
+        responses: 
+          200: 
+            description: "Success"
+            schema: 
+              type: "array"
+              items: 
+                $ref: "#/definitions/Variable"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not Found"
+    /variables/{code}: 
+      get: 
+        tags: 
+          - "variables"
+        summary: "Get a variable"
+        operationId: "getAVariableUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "code"
+            in: "path"
+            description: "code ( multiple codes are allowed, separeted by \",\" )"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "Found"
+            schema: 
+              $ref: "#/definitions/Variable"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not found"
+    /variables/{code}/values: 
+      get: 
+        tags: 
+          - "variables"
+        summary: "Get values from a variable"
+        operationId: "getValuesFromAVariableUsingGET"
+        consumes: 
+          - "application/json"
+        produces: 
+          - "application/json"
+        parameters: 
+          - 
+            name: "code"
+            in: "path"
+            description: "code"
+            required: true
+            type: "string"
+          - 
+            name: "q"
+            in: "query"
+            description: "Pattern to match"
+            required: false
+            type: "string"
+        responses: 
+          200: 
+            description: "Found"
+            schema: 
+              type: "array"
+              items: 
+                $ref: "#/definitions/Value"
+          401: 
+            description: "Unauthorized"
+          403: 
+            description: "Forbidden"
+          404: 
+            description: "Not found"
+  definitions: 
+    Group: 
+      properties: 
+        code: 
+          type: "string"
+          description: "Code"
+        groups: 
+          type: "array"
+          description: "Groups"
+          items: 
+            $ref: "#/definitions/Group"
+        label: 
+          type: "string"
+          description: "Label"
+    ChartConfigSet: 
+      properties: 
+        code: 
+          type: "string"
+          description: "Code"
+        color: 
+          type: "string"
+          description: "Color"
+        label: 
+          type: "string"
+          description: "Label"
+    User: 
+      properties: 
+        apikey: 
+          type: "string"
+          description: "API key"
+        birthday: 
+          type: "string"
+          description: "Birthday date"
+        city: 
+          type: "string"
+          description: "City"
+        country: 
+          type: "string"
+          description: "Country"
+        email: 
+          type: "string"
+          description: "E-mail address"
+        firstname: 
+          type: "string"
+          description: "Firstname"
+        fullname: 
+          type: "string"
+          description: "Fullname"
+        gender: 
+          type: "string"
+          description: "Gender"
+        isActive: 
+          type: "boolean"
+          description: "Is it active ?"
+        languages: 
+          type: "array"
+          description: "Languages"
+          items: 
+            type: "string"
+        lastname: 
+          type: "string"
+          description: "Lastname"
+        password: 
+          type: "string"
+          description: "password"
+        phone: 
+          type: "string"
+          description: "Phone number"
+        picture: 
+          type: "string"
+          description: "Path to a profile picture"
+        roles: 
+          type: "array"
+          description: "Roles"
+          items: 
+            type: "string"
+        team: 
+          type: "string"
+          description: "Team"
+        username: 
+          type: "string"
+          description: "Username"
+        web: 
+          type: "string"
+          description: "Personnal web site URL"
+    Variable: 
+      properties: 
+        code: 
+          type: "string"
+          description: "Code"
+        group: 
+          description: "Group"
+          $ref: "#/definitions/Group"
+        isCovariable: 
+          type: "boolean"
+          description: "Is it a co-variable ?"
+        isFilter: 
+          type: "boolean"
+          description: "Is it a filter ?"
+        isGrouping: 
+          type: "boolean"
+          description: "Is it a grouping variable ?"
+        isVariable: 
+          type: "boolean"
+          description: "Is it a covariable ?"
+        label: 
+          type: "string"
+          description: "Label"
+        length: 
+          type: "integer"
+          format: "int32"
+          description: "Length"
+        maxValue: 
+          type: "number"
+          format: "double"
+          description: "Maximum value (only for numbers)"
+        minValue: 
+          type: "number"
+          format: "double"
+          description: "Minimum value (only for numbers)"
+        type: 
+          type: "string"
+          description: "Type"
+        units: 
+          type: "string"
+          description: "Units"
+        values: 
+          type: "array"
+          items: 
+            $ref: "#/definitions/Value"
+    Query: 
+      properties: 
+        covariables: 
+          type: "array"
+          description: "Covariables"
+          items: 
+            $ref: "#/definitions/Variable"
+        filters: 
+          type: "array"
+          description: "Filters"
+          items: 
+            $ref: "#/definitions/Filter"
+        grouping: 
+          type: "array"
+          description: "Grouping"
+          items: 
+            $ref: "#/definitions/Variable"
+        id: 
+          type: "integer"
+          format: "int64"
+          description: "Unique identifier"
+        request: 
+          type: "string"
+          description: "Request"
+        variables: 
+          type: "array"
+          description: "Variables"
+          items: 
+            $ref: "#/definitions/Variable"
+    Filter: 
+      properties: 
+        id: 
+          type: "integer"
+          format: "int64"
+          description: "Unique identifier"
+        operator: 
+          type: "string"
+          description: "Operator"
+        variable: 
+          description: "Variable"
+          $ref: "#/definitions/Variable"
+    Dataset: 
+      properties: 
+        code: 
+          type: "string"
+          description: "Code"
+        date: 
+          type: "string"
+          format: "date-time"
+          description: "Date"
+        header: 
+          type: "array"
+          description: "Header"
+          items: 
+            type: "string"
+    Article: 
+      properties: 
+        abstract: 
+          type: "string"
+          description: "Short introduction"
+        content: 
+          type: "string"
+          description: "Content"
+        createdAt: 
+          type: "string"
+          format: "date-time"
+          description: "Creation date"
+        createdBy: 
+          description: "Author"
+          $ref: "#/definitions/User"
+        publishedAt: 
+          type: "string"
+          format: "date-time"
+          description: "Publication date"
+        slug: 
+          type: "string"
+          description: "Short string identifier"
+        status: 
+          type: "string"
+          description: "Status"
+        tags: 
+          type: "array"
+          items: 
+            $ref: "#/definitions/Tag"
+        title: 
+          type: "string"
+          description: "Title"
+        updatedAt: 
+          type: "string"
+          format: "date-time"
+          description: "Update date"
+        updatedBy: 
+          description: "Updater"
+          $ref: "#/definitions/User"
+    Model: 
+      properties: 
+        chart: 
+          description: "Chart"
+          $ref: "#/definitions/Chart"
+        createdAt: 
+          type: "string"
+          format: "date-time"
+          description: "Creation date"
+        createdBy: 
+          description: "Author"
+          $ref: "#/definitions/User"
+        dataset: 
+          description: "Dataset"
+          $ref: "#/definitions/Dataset"
+        description: 
+          type: "string"
+          description: "Description"
+        query: 
+          description: "Query"
+          $ref: "#/definitions/Query"
+        slug: 
+          type: "string"
+          description: "slug"
+        title: 
+          type: "string"
+          description: "Title"
+        updatedAt: 
+          type: "string"
+          format: "date-time"
+          description: "Update date"
+        updatedBy: 
+          description: "Updater"
+          $ref: "#/definitions/User"
+        valid: 
+          type: "boolean"
+          description: "Is it valid ?"
+    Value: 
+      properties: 
+        code: 
+          type: "string"
+          description: "Code"
+        label: 
+          type: "string"
+          description: "Label"
+    Tag: 
+      properties: 
+        name: 
+          type: "string"
+          description: "Name"
+    Chart: 
+      properties: 
+        chartConfigSets: 
+          type: "array"
+          description: "Chart configuration"
+          items: 
+            $ref: "#/definitions/ChartConfigSet"
+        chartType: 
+          type: "string"
+          description: "Chart type"
+        id: 
+          type: "integer"
+          format: "int64"
+          description: "Unique identifier"

@@ -366,7 +366,6 @@ paths:
               $ref: '#/definitions/Value'
         '404':
           description: 'Not found'
-
   /stats/{code}:
     get:
       summary: 'Get the statistics for a group or a variable'
@@ -391,7 +390,6 @@ paths:
               $ref: '#/definitions/Statistics'
         '404':
           description: 'Not found'
-
 definitions:
 
   Article:

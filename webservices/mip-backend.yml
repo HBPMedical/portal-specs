@@ -390,6 +390,29 @@ paths:
               $ref: '#/definitions/Statistics'
         '404':
           description: 'Not found'
+
+  /requests:
+    post:
+      description: |
+        Execute a query. API for front end.
+      parameters:
+        - name: query
+          in: body
+          description: |
+            The query defining the function to execute, the variables, covariables, groupings and filters.
+          required: true
+          schema:
+            $ref: '#/definitions/Query'
+      responses:
+        '200':
+          description: The result dataset
+          schema:
+            $ref: '#/definitions/Dataset'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
 definitions:
 
   Article:

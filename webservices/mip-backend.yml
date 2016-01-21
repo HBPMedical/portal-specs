@@ -736,10 +736,9 @@ definitions:
           type: object
           $ref: "#/definitions/Filter"
         description: 'Filters'
-      # TODO: request should be renamed to plotType
-      request:
+      algorithm:
         type: string
-        description: 'Plot type'
+        description: 'Algorithm to use'
 
   GroupId:
     description: Identifier for a group
